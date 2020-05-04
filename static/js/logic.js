@@ -19,13 +19,15 @@ var apiKey = getMapBoxAPIKey();
 // Map Layers:
 // Create map layers
 mapLayersList = createMapLayers();
+
+
 // Base map layers dictionary for adding Leaflet control layer 
 var mapLayers = {
   Outdoors: mapLayersList[0],
   Light: mapLayersList[1],
   Dark: mapLayersList[2],
-  Streets: mapLayersList[3],
-  Satellite: mapLayersList[4]
+  Satellite: mapLayersList[3],
+  Streets: mapLayersList[4]
 };
 
 
@@ -44,8 +46,13 @@ var overlayLayers = {
 var map = createMap(mapId, mapCenter, mapZoom, mapLayersList);
 
 
+// Add layers to map
+map.addLayer(earthquakeLayer)
+map.addLayer(tectonicLayer)
+
+
 // Set base layer (Satelite) 
-// mapLayers[4].addTo(map);
+mapLayersList[4].addTo(earthquakeLayer);
 
 
 // Add control layers (Map layers & Overlay layers)  
@@ -58,7 +65,7 @@ L.control
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", function(data) {
  
   // Add earthquakes to map 
-  addEarthquakeData(map, data);
+  addEarthquakeData(map, earthquakeLayer, data);
 
 });
 
@@ -67,7 +74,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json", function(data) {
     
   // Add tetonics to map 
-  addTectonicData(map, data);
+  addTectonicData(map, tectonicLayer, data);
 
 });
 
@@ -183,14 +190,14 @@ function createMapLayers(map) {
   var mapLayer4 = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
-    id: "mapbox.streets",
+    id: "mapbox.streets-satellite",
     accessToken: apiKey
   });
 
   var mapLayer5 = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
-    id: "mapbox.streets-satellite",
+    id: "mapbox.streets",
     accessToken: apiKey
   });
 
@@ -221,7 +228,7 @@ function addBaseLayer(map, pBaseLayer) {
 // Function : Add earthquake data
 // --------------------------------------------------------------------------------------------------------------------------------------------------------- //
 // ********************************************************************************************************************************************************* //
-function addEarthquakeData(pMap, pEarthquakeData) {
+function addEarthquakeData(pMap, pEarthquakeLayer, pEarthquakeData) {
   
   // Add a GeoJSON layer for earthquakes to the map once
   
@@ -239,7 +246,7 @@ function addEarthquakeData(pMap, pEarthquakeData) {
   })
 
   // Add earthquakes to map:
-  earthquakes.addTo(map);
+  earthquakes.addTo(pEarthquakeLayer);
 
   // Return
   return;
@@ -251,7 +258,7 @@ function addEarthquakeData(pMap, pEarthquakeData) {
 // Function : Add Tectonic data
 // --------------------------------------------------------------------------------------------------------------------------------------------------------- //
 // ********************************************************************************************************************************************************* //
-function addTectonicData(pMap, pTectonicData) {
+function addTectonicData(pMap, pTectonicLayer, pTectonicData) {
   
   // Add a GeoJSON layer for Tectonic to the map
   
@@ -263,7 +270,7 @@ function addTectonicData(pMap, pTectonicData) {
   })
 
   // Add earthquakes to map:
-  tectonics.addTo(map);
+  tectonics.addTo(pTectonicLayer);
 
   // Return
   return;
